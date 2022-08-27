@@ -45,3 +45,4 @@ with open(filedialog.askopenfilename(), "r") as word_file:
             #When done
             end = time.time()
             print("Done! ("+str(end-start)+") seconds")
+            time.sleep(5)

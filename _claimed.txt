@@ -1,0 +1,8 @@
+names
+should
+separated
+like
+that
+and
+ascii
+formated
