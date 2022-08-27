@@ -8,4 +8,4 @@ Requirements:
 
 Installing:
 
-Click "download from source", unzip then use start.bat :)
+Click "Code" -> "Download zip", unzip then use start.bat :)
