@@ -4,7 +4,7 @@ A tiny python script that check minecraft ign availability from a provided list
 
 **Requirements:**
 
-    `Python 3.x`
+   ```Python 3.x```
 
 **Installing:**
 
