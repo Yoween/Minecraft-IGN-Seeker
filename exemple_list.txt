@@ -1,0 +1,10 @@
+names
+should
+be
+separated
+like
+that
+and
+be
+ascii
+formated
