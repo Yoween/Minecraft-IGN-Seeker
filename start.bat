@@ -1,1 +1,0 @@
-python "Minecraft IGN Seeker.py"
