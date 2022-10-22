@@ -1,6 +1,8 @@
 import requests, time
 from random import choice
 from tkinter import filedialog
+from tkinter import *
+from multiprocessing import Process
 
 #Init counter
 count = 0
@@ -29,12 +31,12 @@ with open(filedialog.askopenfilename(), "r") as word_file:
                 response = requests.get("https://api.mojang.com/users/profiles/minecraft/{0}".format(word))
                 if response.status_code == 204: #204 = untaken
                     print("{0} is not claimed (#".format(word)+ str(count) +")")
-                    unclaimed_file = open("_unclaimed.txt", "a")
+                    unclaimed_file = open("unclaimed.txt", "a")
                     unclaimed_file.write(word + "\n")
                     unclaimed_file.close()
                 elif response.status_code == 200: #200 = taken
                     print("{0} is already claimed (#".format(word)+ str(count) +")")
-                    claimed_file = open("_claimed.txt", "a")
+                    claimed_file = open("claimed.txt", "a")
                     claimed_file.write(word + "\n")
                     claimed_file.close()
                 elif response.status_code == 429: #Connection refused
