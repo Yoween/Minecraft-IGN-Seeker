@@ -1,50 +1,87 @@
-import requests, time
+import requests, time, multiprocessing, os
 from random import choice
 from tkinter import filedialog
 from tkinter import *
-from multiprocessing import Process
 
-#Init counter
-count = 0
-pos = -1
 #Loop for each word
-print("Please select the word list file")
-with open(filedialog.askopenfilename(), "r") as word_file:
-    #Open files and ask for start pos
+def ignSeeker(word_file, startPos = -1, timeOut = 1) :
+    #Init counter
+    count = 0
+    if startPos == "" :
+        startPos = 0
+    elif type(startPos) == int:
+        return
+    else :
+        pass
     word_array = word_file.readlines()
-    print("Starting with {0} words.".format(len(word_array)))
-    pos = input("Select the pos you want to start from (empty for 0): ")
-    if pos == "" or pos == " ":
-        pos = -1
-    elif int(pos) > len(word_array):
-        print("Specified number is bigger than the list itself")
-        time.sleep(5)
-    elif int(pos) <= len(word_array):
-        pos=(int(pos)-1)
     start = time.time() #start timer
     # Loop for each word
-    for i, line in enumerate(word_array):
-        if i == (pos + 1) :
+    for i in enumerate(word_array):
+        if i == (startPos + 1) :
             count = i
             for x in range(len(word_array)):
                 word = word_array[x].strip()
-                response = requests.get("https://api.mojang.com/users/profiles/minecraft/{0}".format(word))
+                response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{(word)}")
                 if response.status_code == 204: #204 = untaken
-                    print("{0} is not claimed (#".format(word)+ str(count) +")")
+                    print(f"{word} is not claimed (#{count})")
                     unclaimed_file = open("unclaimed.txt", "a")
                     unclaimed_file.write(word + "\n")
                     unclaimed_file.close()
                 elif response.status_code == 200: #200 = taken
-                    print("{0} is already claimed (#".format(word)+ str(count) +")")
+                    print(f"{word} is already claimed (#{count})")
                     claimed_file = open("claimed.txt", "a")
                     claimed_file.write(word + "\n")
                     claimed_file.close()
                 elif response.status_code == 429: #Connection refused
                     time.sleep(600) #10 mins
-                    pos -= 1
+                    startPos -= 1
                 count += 1
-                time.sleep(1) #Sleep for 1 sec because of mojang api limitations
+                time.sleep(timeOut) #Sleep for 1 sec because of mojang api limitations
             #When done
             end = time.time()
-            print("Done! ("+str(end-start)+") seconds")
+            print(f"Done! ({end-start}) seconds")
             time.sleep(5)
+
+
+
+class WindowUI : 
+    def __init__(self):
+        self.root = Tk()
+        self.root.geometry("300x300")
+        self.root.title("Minecraft IGN Seeker")
+
+
+        startPosText = Label(self.root, text = "Select the pos you want to start from")
+        startPosText.pack()
+        startPosEntry = Entry(self.root)   
+        startPosEntry.pack()
+
+        v1 = DoubleVar()
+
+        timeoutText = Label(self.root, text = "Time to pause between actions (in seconds)")
+        timeoutText.pack()
+        timeoutSlider = Scale(self.root, variable = v1, from_ = 0.00, to = 10.00, digits = 3, resolution = 0.1, orient = HORIZONTAL)   
+        timeoutSlider.pack()
+
+        buttonGo = Button(self.root, text = "Go!", command = lambda: [self.newIgnSeeker(startPosEntry.get(), v1.get())])
+        buttonGo.pack(pady = 5)
+
+        buttonQuit = Button(self.root, text = "Quit!", command = self.root.destroy)
+        buttonQuit.pack(pady = 5)
+
+        self.log = Entry(self.root)
+        self.log.pack()
+
+
+        self.root.mainloop()
+    
+    def newIgnSeeker(self, startPos = 0, timeOut = 0) :
+        p = multiprocessing.Process(target = ignSeeker(open(filedialog.askopenfilename(), "r"), startPos, timeOut))
+        p.start()
+        
+        self.log.configure(state = "normal")
+        self.log.insert("1.0", f"")
+        self.log.configure(state = "disabled")
+
+if __name__ == '__main__' :
+    startUI = WindowUI()
