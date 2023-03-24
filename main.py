@@ -4,7 +4,10 @@ class Main:
         try:
             if startPos == "":
                 startPos = 0
-            count = int(startPos)
+            try:
+                count = int(startPos)
+            except:
+                count = float(startPos)
             word_file = open(file, "r")
             word_array = []
             invalid = False
