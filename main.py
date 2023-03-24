@@ -1,55 +1,60 @@
-import requests, time, multiprocessing, os
-from random import choice
-from tkinter import filedialog
-from tkinter import *
+class Main:
+    def __init__(self, file: str, startPos: int, timeout = 1):
+        #Init counter
+        if startPos == "":
+            startPos = 0
+        count = startPos
+        word_file = open(file, "r")
+        word_array = []
+        for word in word_file:
+            if len(word) > 3:
+                word_array.append(word.strip())
+        word_file.close()
+        start = time.time() #start timer
+        # Loop for each word
+        len_array = len(word_array)
+        headers = {'Content-Type': 'application/json'}
+        while count < len_array:
+            difference = len_array - count
+            payload = []
+            for i in range(difference if difference < 10 else 10):
+                payload.append(word_array[count+i])
+            request = requests.post("https://api.mojang.com/profiles/minecraft", headers = headers, data = json.dumps(payload))
+            content = request.json()
+            if request.status_code == 429:
+                count -= difference
+                time.sleep(600)
+            else:
+                len_payload = len(payload)
+                payload_sorted = sorted(payload)
+                payload_index = 0
+                content_index = 0
+                while payload_index < len_payload:
+                    payload_item = payload_sorted[payload_index]
+                    if payload_item != content[content_index]["name"].lower():
+                        print(f"{payload_item} is available (#{count+payload_index})")
+                        unclaimed_file = open("unclaimed.txt", "a")
+                        unclaimed_file.write(payload_item + "\n")
+                        unclaimed_file.close()
+                        content_index-=1
+                    else:
+                        print(f"{payload_item} is already used (#{count+payload_index})")
+                        claimed_file = open("claimed.txt", "a")
+                        claimed_file.write(payload_item + "\n")
+                        claimed_file.close()
+                    payload_index+=1
+                    content_index+=1
+            count += 10
+            time.sleep(timeout)
+        end = time.time()
+        print(f"Done! ({end-start} seconds)")
+        input()
 
-#Loop for each word
-def ignSeeker(word_file, startPos = -1, timeOut = 1) :
-    #Init counter
-    count = 0
-    if startPos == "" :
-        startPos = 0
-    elif type(startPos) == int:
-        return
-    else :
-        pass
-    word_array = word_file.readlines()
-    start = time.time() #start timer
-    # Loop for each word
-    for i in enumerate(word_array):
-        if i == (startPos + 1) :
-            count = i
-            for x in range(len(word_array)):
-                word = word_array[x].strip()
-                response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{(word)}")
-                if response.status_code == 204: #204 = untaken
-                    print(f"{word} is not claimed (#{count})")
-                    unclaimed_file = open("unclaimed.txt", "a")
-                    unclaimed_file.write(word + "\n")
-                    unclaimed_file.close()
-                elif response.status_code == 200: #200 = taken
-                    print(f"{word} is already claimed (#{count})")
-                    claimed_file = open("claimed.txt", "a")
-                    claimed_file.write(word + "\n")
-                    claimed_file.close()
-                elif response.status_code == 429: #Connection refused
-                    time.sleep(600) #10 mins
-                    startPos -= 1
-                count += 1
-                time.sleep(timeOut) #Sleep for 1 sec because of mojang api limitations
-            #When done
-            end = time.time()
-            print(f"Done! ({end-start}) seconds")
-            time.sleep(5)
-
-
-
-class WindowUI : 
+class WindowUI: 
     def __init__(self):
         self.root = Tk()
         self.root.geometry("300x300")
         self.root.title("Minecraft IGN Seeker")
-
 
         startPosText = Label(self.root, text = "Select the pos you want to start from")
         startPosText.pack()
@@ -75,13 +80,21 @@ class WindowUI :
 
         self.root.mainloop()
     
-    def newIgnSeeker(self, startPos = 0, timeOut = 0) :
-        p = multiprocessing.Process(target = ignSeeker(open(filedialog.askopenfilename(), "r"), startPos, timeOut))
+    def newIgnSeeker(self, startPos = 1, timeout = 30):
+        ignSeeker = Main(filedialog.askopenfilename(), startPos, timeout)
+        p = multiprocessing.Process(target = ignSeeker)
         p.start()
         
         self.log.configure(state = "normal")
-        self.log.insert("1.0", f"")
+        self.log.insert(0, f"")
         self.log.configure(state = "disabled")
 
-if __name__ == '__main__' :
-    startUI = WindowUI()
+if __name__ == '__main__':
+    import requests, time, multiprocessing, json, sys
+    try:
+        from tkinter import filedialog
+        from tkinter import *
+        startUI = WindowUI()
+    except:
+        print("Program started in nogui mode because no tkinter module was found")
+        start = Main(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]))
