@@ -51,7 +51,10 @@ class Main:
                                 claimed_file.write(payload_item + "\n")
                                 claimed_file.close()
                         except:
-                            pass
+                            print(f"{payload_item} is already used (#{count+payload_index})")
+                            claimed_file = open("claimed.txt", "a")
+                            claimed_file.write(payload_item + "\n")
+                            claimed_file.close()
                         payload_index+=1
                         content_index+=1
                 count += 10
