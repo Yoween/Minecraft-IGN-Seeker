@@ -4,10 +4,7 @@ class Main:
         try:
             if startPos == "":
                 startPos = 0
-            try:
-                count = int(startPos)
-            except:
-                count = float(startPos)
+            count = int(startPos)
             word_file = open(file, "r")
             word_array = []
             invalid = False
@@ -96,7 +93,7 @@ class WindowUI:
 
         self.root.mainloop()
     
-    def newIgnSeeker(self, startPos = 1, timeout = 30):
+    def newIgnSeeker(self, startPos = 1, timeout = 1):
         ignSeeker = Main(filedialog.askopenfilename(), startPos, timeout)
         p = multiprocessing.Process(target = ignSeeker)
         p.start()
@@ -113,4 +110,4 @@ if __name__ == '__main__':
         startUI = WindowUI()
     except:
         print("Program started in nogui mode because no tkinter module was found")
-        start = Main(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]))
+        start = Main(sys.argv[1],int(sys.argv[2]),float(sys.argv[3]))
