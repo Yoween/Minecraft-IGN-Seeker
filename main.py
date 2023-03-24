@@ -20,18 +20,18 @@ class Main:
             for i in range(difference if difference < 10 else 10):
                 payload.append(word_array[count+i])
             request = requests.post("https://api.mojang.com/profiles/minecraft", headers = headers, data = json.dumps(payload))
-            content = request.json()
+            response = request.json()
             if request.status_code == 429:
                 count -= difference
                 time.sleep(600)
             else:
-                len_payload = len(payload)
+                len_response = len(response)
                 payload_sorted = sorted(payload)
                 payload_index = 0
                 content_index = 0
-                while payload_index < len_payload:
+                while payload_index < len_response:
                     payload_item = payload_sorted[payload_index]
-                    if payload_item != content[content_index]["name"].lower():
+                    if payload_item != response[content_index]["name"].lower():
                         print(f"{payload_item} is available (#{count+payload_index})")
                         unclaimed_file = open("unclaimed.txt", "a")
                         unclaimed_file.write(payload_item + "\n")
