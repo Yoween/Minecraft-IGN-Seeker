@@ -90,7 +90,7 @@ if __name__ == '__main__':
     import requests, time, json, sys, string
     len_args = len(sys.argv)
     pos = 0
-    pause = 0.5
+    pause = 1.5
     if len_args == 1:
         try:
             import tkinter as tk
