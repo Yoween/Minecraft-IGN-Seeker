@@ -1,5 +1,5 @@
 class Main:
-    def __init__(self, file: str, startPos: int, timeout = 1):
+    def __init__(self, file: str, startPos: int, pause = 1):
         self.valid_chars = list(string.ascii_lowercase + string.digits) 
         try:
             if startPos == "":
@@ -27,7 +27,7 @@ class Main:
             start = time.time()
             len_array = len(word_array)
             headers = {'Content-Type': 'application/json'}
-            print(f"Starting with {len_array} words. Press Ctrl + C to cancel at any moment")
+            print(f"Starting with {len_array} words, from position {startPos} and with {pause}s pause.\nPress Ctrl + C to cancel at any moment")
             while count < len_array:
                 difference = len_array - count
                 payload = []
@@ -52,13 +52,12 @@ class Main:
                                 self.output(1, payload_index, payload_item, count)
                         except:
                             self.output(0, payload_index, payload_item, count)
-                            content_index -= 1
                         payload_index += 1
                         content_index += 1
                 count += 10
                 if count % 100 == 0:
                     print(f"{count} word checked! {len_array - count} left!")
-                time.sleep(timeout)
+                time.sleep(pause)
             end = time.time()
             print(f"Done! ({end-start} seconds)")
             input()
@@ -118,7 +117,7 @@ if __name__ == '__main__':
         exit()
     except IndexError as e:
         pos = 0
-        pause = 1
+        pause = 1.5
     except Exception as e:
         print(e)
         exit()
