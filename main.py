@@ -1,5 +1,5 @@
 class Main:
-    def __init__(self, file: str, startPos: int, pause = 1):
+    def __init__(self, file: str, startPos: int, pause:int):
         self.valid_chars = list(string.ascii_lowercase + string.digits) 
         try:
             if startPos == "":
@@ -8,6 +8,7 @@ class Main:
             word_file = open(file, "r")
             word_array = []
             invalid = False
+            print("Processing words...")
             for word in word_file:
                 word = word.strip()
                 word = word.lower()
@@ -19,8 +20,8 @@ class Main:
                 else:
                     invalid = True
             if invalid:
-                print("Some words are shorter than the minimum allowed by Mojang or contains invalid characters.\nIndexes may not be accurate to the provided list\nBUT WILL BE for the program if you want to change the starting position.")
-                if input("Still want to continue? y/n: ") != "y":
+                print("Some words are shorter than the minimum allowed by Mojang or contains invalid characters.\nIndexes may not be accurate to the provided list BUT WILL BE for the program if you want to change the starting position.")
+                if not input("Press return to continue or Control + C to cancel") == "":
                     return
             word_file.close()
             word_array = list(dict.fromkeys(word_array))
@@ -28,6 +29,9 @@ class Main:
             len_array = len(word_array)
             headers = {'Content-Type': 'application/json'}
             print(f"Starting with {len_array} words, from position {startPos} and with {pause}s pause.\nPress Ctrl + C to cancel at any moment")
+            for i in range(3, 0, -1):
+                print(f"Starting in {i}", end="\r")
+                time.sleep(1)
             while count < len_array:
                 difference = len_array - count
                 payload = []
